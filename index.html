@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Dashboard Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a; /* Azul muito escuro */
+            --card-bg: #1e293b;   /* Azul acinzentado */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.5px; }
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Grid Layout */
+        .grid-dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Gráfico ocupa 2/3, Tabelas 1/3 */
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .grid-dashboard { grid-template-columns: 1fr; }
+        }
+
+        /* Cards Genéricos */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Destaques Superiores */
+        .highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .highlight-card h3 { color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 10px 0; font-weight: 400; }
+        .highlight-value { font-size: 1.8rem; font-weight: 600; }
+        .highlight-var { font-size: 0.9rem; margin-top: 5px; font-weight: 500; }
+
+        /* Tabelas */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { text-align: left; color: var(--text-secondary); padding: 12px 0; font-weight: 400; border-bottom: 1px solid var(--border-color); }
+        td { padding: 15px 0; border-bottom: 1px solid rgba(51, 65, 85, 0.5); }
+        .col-price { text-align: right; font-weight: 600; }
+        .col-var { text-align: right; }
+        
+        /* Cores de Variação */
+        .up { color: var(--accent-green); }
+        .down { color: var(--accent-red); }
+
+        /* Footer */
+        footer { margin-top: 40px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
+        a { color: #3b82f6; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>Gui Informa</h1>
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">Visão geral do Mercado em tempo real (BRL)</span>
+        </div>
+        <span class="status-badge">● Ao vivo</span>
+    </header>
+
+    <div class="highlights">
+        <div class="card highlight-card">
+            <h3>Dólar Comercial</h3>
+            <div class="highlight-value" id="main-usd">---</div>
+            <div class="highlight-var" id="var-usd">---</div>
+        </div>
+        <div class="card highlight-card">
+            <h3>Bitcoin</h3>
+            <div class="highlight-value" id="main-btc">---</div>
+            <div class="highlight-var" id="var-btc">---</div>
+        </div>
+        <div class="card highlight-card">
+            <h3>Euro</h3>
+            <div class="highlight-value" id="main-eur">---</div>
+            <div class="highlight-var" id="var-eur">---</div>
+        </div>
+    </div>
+
+    <div class="grid-dashboard">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <h3 style="margin:0;">Tendência Dólar (30 Dias)</h3>
+            </div>
+            <canvas id="marketChart" style="max-height: 400px;"></canvas>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div class="card">
+                <h3 style="margin-top:0; margin-bottom:15px; color: #fff;">Moedas Globais</h3>
+                <table id="fiat-table">
+                    <thead>
+                        <tr>
+                            <th>Moeda</th>
+                            <th class="col-price">Preço (R$)</th>
+                            <th class="col-var">24h %</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top:0; margin-bottom:15px; color: #fff;">Criptoativos</h3>
+                <table id="crypto-table">
+                    <thead>
+                        <tr>
+                            <th>Ativo</th>
+                            <th class="col-price">Preço (R$)</th>
+                            <th class="col-var">24h %</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        Dados fornecidos por <a href="https://docs.awesomeapi.com.br" target="_blank">AwesomeAPI</a>. Atualização automática.
+    </footer>
+</div>
+
+<script>
+    // Configurações Globais
+    const API_URL_LAST = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,CAD-BRL,JPY-BRL,BTC-BRL,ETH-BRL,LTC-BRL';
+    
+    // Lista para organizar as tabelas
+    const fiatList = ['USDBRL', 'EURBRL', 'GBPBRL', 'CADBRL', 'JPYBRL'];
+    const cryptoList = ['BTCBRL', 'ETHBRL', 'LTCBRL'];
+
+    // Formatação de Dinheiro
+    const formatCurrency = (value) => {
+        return parseFloat(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
+
+    // Elemento HTML de variação
+    const getVariationElement = (pct) => {
+        const val = parseFloat(pct);
+        const icon = val >= 0 ? '▲' : '▼';
+        const colorClass = val >= 0 ? 'up' : 'down';
+        return `<span class="${colorClass}">${icon} ${val.toFixed(2)}%</span>`;
+    };
+
+    // 1. Buscar Dados e Preencher Tabelas
+    async function fetchData() {
+        try {
+            const response = await fetch(API_URL_LAST);
+            const data = await response.json();
+
+            // Atualizar Cards de Destaque
+            document.getElementById('main-usd').innerText = formatCurrency(data.USDBRL.bid);
+            document.getElementById('var-usd').innerHTML = getVariationElement(data.USDBRL.pctChange);
+            
+            document.getElementById('main-btc').innerText = formatCurrency(data.BTCBRL.bid);
+            document.getElementById('var-btc').innerHTML = getVariationElement(data.BTCBRL.pctChange);
+
+            document.getElementById('main-eur').innerText = formatCurrency(data.EURBRL.bid);
+            document.getElementById('var-eur').innerHTML = getVariationElement(data.EURBRL.pctChange);
+
+            // Preencher Tabela Fiat
+            fillTable('fiat-table', fiatList, data);
+            // Preencher Tabela Cripto
+            fillTable('crypto-table', cryptoList, data);
+
+        } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+        }
+    }
+
+    function fillTable(tableId, keys, data) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = ''; // Limpa tabela
+
+        keys.forEach(key => {
+            const item = data[key];
+            if(!item) return;
+
+            // Tratamento do nome (remove o /Real Brasileiro para ficar curto)
+            let name = item.name.split('/')[0]; 
+            
+            const row = `
+                <tr>
+                    <td>${name}</td>
+                    <td class="col-price">${formatCurrency(item.bid)}</td>
+                    <td class="col-var">${getVariationElement(item.pctChange)}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // 2. Gráfico com Gradiente (Chart.js)
+    async function initChart() {
+        const ctx = document.getElementById('marketChart').getContext('2d');
+
+        // Criar gradiente bonito
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // Azul forte no topo
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)'); // Transparente embaixo
+
+        // Pegar histórico de 30 dias do Dólar
+        const response = await fetch('https://economia.awesomeapi.com.br/json/daily/USD-BRL/30');
+        const rawData = await response.json();
+        
+        const labels = rawData.map(i => new Date(i.timestamp * 1000).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})).reverse();
+        const values = rawData.map(i => i.bid).reverse();
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Dólar (BRL)',
+                    data: values,
+                    borderColor: '#3b82f6', // Azul brilhante
+                    borderWidth: 2,
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4, // Curva suave
+                    pointRadius: 0, // Remove bolinhas para visual limpo
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: { intersect: false, mode: 'index' },
+                scales: {
+                    x: { grid: { display: false, color: '#334155' }, ticks: { color: '#94a3b8' } },
+                    y: { grid: { color: '#334155', borderDash: [5, 5] }, ticks: { color: '#94a3b8' } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        displayColors: false
+                    }
+                }
+            }
+        });
+    }
+
+    // Inicializar
+    fetchData();
+    initChart();
+    
+    // Atualizar preços a cada 30 segundos
+    setInterval(fetchData, 30000);
+
+</script>
+</body>
+</html>
