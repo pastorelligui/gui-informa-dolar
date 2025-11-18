@@ -1,0 +1,47 @@
+# 📈 Market Dashboard Pro
+
+![Status](https://img.shields.io/badge/Status-Finished-green)
+![License](https://img.shields.io/badge/License-MIT-blue)
+![Technology](https://img.shields.io/badge/HTML5-CSS3-orange)
+
+Um painel financeiro moderno e responsivo que exibe cotações de moedas fiduciárias e criptomoedas em tempo real, comparadas ao Real Brasileiro (BRL). O projeto foca em uma interface "Dark Mode" premium e visualização de dados limpa.
+
+![Preview do Projeto](preview.png)
+> *Dica: Tire um print da tela do seu projeto e salve como 'preview.png' na pasta para a imagem aparecer aqui.*
+
+## ✨ Funcionalidades
+
+* **Cotações em Tempo Real:** Monitoramento de Dólar, Euro, Libra, Bitcoin, Ethereum e Litecoin.
+* **Gráfico Interativo:** Histórico dos últimos 30 dias do Dólar (USD/BRL) com visualização em gradiente.
+* **Design Premium:** Interface Dark Mode inspirada em terminais financeiros (Bloomberg/Binance).
+* **Atualização Automática:** Os dados são renovados automaticamente a cada 30 segundos sem recarregar a página.
+* **Responsividade:** Layout adaptável para desktops e dispositivos móveis.
+
+## 🛠 Tecnologias Utilizadas
+
+* **HTML5 & CSS3:** Uso de variáveis CSS, Flexbox e CSS Grid.
+* **JavaScript (ES6+):** Consumo de API via `async/await` e manipulação de DOM.
+* **Chart.js:** Biblioteca para renderização do gráfico de área.
+* **Fonte:** Inter (Google Fonts).
+
+## 🔗 API e Dados
+
+Os dados financeiros são fornecidos publicamente pela **AwesomeAPI**.
+* Endpoint de Cotações: `https://economia.awesomeapi.com.br/last/`
+* Endpoint de Histórico: `https://economia.awesomeapi.com.br/json/daily/`
+
+> **Nota:** Este projeto utiliza a API gratuita, sujeita a limites de requisição.
+
+## 🚀 Como executar
+
+Não é necessário instalar nada (Node.js, Python, etc). Este é um projeto estático.
+
+1.  Clone este repositório ou baixe o arquivo ZIP.
+2.  Abra o arquivo `index.html` em qualquer navegador moderno.
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Sinta-se livre para usar e modificar para seus estudos.
+
+---
+Desenvolvido com 💙 para estudos de Front-end.
