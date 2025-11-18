@@ -6,9 +6,6 @@
 
 Um painel financeiro moderno e responsivo que exibe cotações de moedas fiduciárias e criptomoedas em tempo real, comparadas ao Real Brasileiro (BRL). O projeto foca em uma interface "Dark Mode" premium e visualização de dados limpa.
 
-![Preview do Projeto](preview.png)
-> *Dica: Tire um print da tela do seu projeto e salve como 'preview.png' na pasta para a imagem aparecer aqui.*
-
 ## ✨ Funcionalidades
 
 * **Cotações em Tempo Real:** Monitoramento de Dólar, Euro, Libra, Bitcoin, Ethereum e Litecoin.
@@ -42,6 +39,3 @@ Não é necessário instalar nada (Node.js, Python, etc). Este é um projeto est
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Sinta-se livre para usar e modificar para seus estudos.
-
----
-Desenvolvido com 💙 para estudos de Front-end.
