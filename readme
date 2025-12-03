@@ -1,41 +1,40 @@
-# 📈 Market Dashboard Pro
 
-![Status](https://img.shields.io/badge/Status-Finished-green)
-![License](https://img.shields.io/badge/License-MIT-blue)
-![Technology](https://img.shields.io/badge/HTML5-CSS3-orange)
+# 🚀 Apresentando o **Gui Informa** – Meu novo painel financeiro moderno e responsivo
 
-Um painel financeiro moderno e responsivo que exibe cotações de moedas fiduciárias e criptomoedas em tempo real, comparadas ao Real Brasileiro (BRL). O projeto foca em uma interface "Dark Mode" premium e visualização de dados limpa.
+Nas últimas semanas dediquei algumas horas ao desenvolvimento de um projeto pessoal que sempre quis tirar do papel: um painel financeiro completo, responsivo e com visual premium, capaz de exibir **cotações de moedas e criptomoedas em tempo real**, tudo comparado ao Real Brasileiro (BRL).
 
-## ✨ Funcionalidades
+Batizei o projeto de **Gui Informa**, e ele nasceu como um laboratório para explorar práticas modernas de front-end, visualização de dados e consumo de APIs públicas.
 
-* **Cotações em Tempo Real:** Monitoramento de Dólar, Euro, Libra, Bitcoin, Ethereum e Litecoin.
-* **Gráfico Interativo:** Histórico dos últimos 30 dias do Dólar (USD/BRL) com visualização em gradiente.
-* **Design Premium:** Interface Dark Mode inspirada em terminais financeiros (Bloomberg/Binance).
-* **Atualização Automática:** Os dados são renovados automaticamente a cada 30 segundos sem recarregar a página.
-* **Responsividade:** Layout adaptável para desktops e dispositivos móveis.
+---
 
-## 🛠 Tecnologias Utilizadas
+## ✨ O que o Gui Informa faz?
 
-* **HTML5 & CSS3:** Uso de variáveis CSS, Flexbox e CSS Grid.
-* **JavaScript (ES6+):** Consumo de API via `async/await` e manipulação de DOM.
-* **Chart.js:** Biblioteca para renderização do gráfico de área.
-* **Fonte:** Inter (Google Fonts).
+🔹 **Cotações em tempo real**
+Dólar, Euro, Libra, Bitcoin, Ethereum e Litecoin — atualizados automaticamente a cada 30 segundos, sem recarregar a página.
 
-## 🔗 API e Dados
+🔹 **Gráfico interativo**
+Histórico dos últimos 30 dias do USD/BRL, utilizando Chart.js, com visual de área em gradiente.
 
-Os dados financeiros são fornecidos publicamente pela **AwesomeAPI**.
-* Endpoint de Cotações: `https://economia.awesomeapi.com.br/last/`
-* Endpoint de Histórico: `https://economia.awesomeapi.com.br/json/daily/`
+🔹 **Interface premium em Dark Mode**
+Inspirada em terminais financeiros como Bloomberg e Binance, com foco em leitura limpa e experiência moderna.
 
-> **Nota:** Este projeto utiliza a API gratuita, sujeita a limites de requisição.
+🔹 **Totalmente responsivo**
+Pensado para desktop e mobile.
 
-## 🚀 Como executar
+---
 
-Não é necessário instalar nada (Node.js, Python, etc). Este é um projeto estático.
+## 🛠️ Tecnologias que utilizei
 
-1.  Clone este repositório ou baixe o arquivo ZIP.
-2.  Abra o arquivo `index.html` em qualquer navegador moderno.
+* **HTML5 e CSS3** (Flexbox, Grid e variáveis CSS)
+* **JavaScript (ES6+)** com `fetch` + `async/await`
+* **Chart.js** para visualização do gráfico
+* **API AwesomeAPI**, que fornece dados financeiros públicos
+* **Google Fonts – Inter**
 
-## 📄 Licença
+Foi um ótimo exercício de arquitetura front-end, componentização, versionamento e refinamento visual.
 
-Este projeto está sob a licença MIT. Sinta-se livre para usar e modificar para seus estudos.
+---
+
+## 🔗 Código e Deploy
+
+🌐 *Projeto online: https://guidolar.netlify.app
