@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Market Dashboard Pro</title>
+    <title>Gui Informa - Dashboard Interativo</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -14,6 +14,7 @@
             --text-secondary: #94a3b8;
             --accent-green: #10b981;
             --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
             --border-color: #334155;
         }
 
@@ -44,6 +45,16 @@
             border-radius: 20px;
             font-size: 0.85rem;
             border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot { height: 8px; width: 8px; background-color: var(--accent-green); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         /* Grid Layout */
@@ -77,20 +88,92 @@
         .highlight-value { font-size: 1.8rem; font-weight: 600; }
         .highlight-var { font-size: 0.9rem; margin-top: 5px; font-weight: 500; }
 
+        /* Controles do Gráfico */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .chart-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .chart-btn:hover { color: var(--text-primary); }
+        .chart-btn.active {
+            background-color: var(--accent-blue);
+            color: white;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
         /* Tabelas */
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th { text-align: left; color: var(--text-secondary); padding: 12px 0; font-weight: 400; border-bottom: 1px solid var(--border-color); }
         td { padding: 15px 0; border-bottom: 1px solid rgba(51, 65, 85, 0.5); }
-        .col-price { text-align: right; font-weight: 600; }
+        .col-price { text-align: right; font-weight: 600; font-family: 'Courier New', monospace; letter-spacing: -0.5px; }
         .col-var { text-align: right; }
         
+        /* Notícias (NOVO CSS) */
+        .news-list { list-style: none; padding: 0; margin: 0; }
+        .news-item { 
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5); 
+            padding: 15px 0; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px;
+            transition: background 0.2s;
+        }
+        .news-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .news-item:first-child { padding-top: 0; }
+        
+        .news-link { 
+            color: var(--text-primary); 
+            text-decoration: none; 
+            font-weight: 500; 
+            font-size: 0.95rem; 
+            line-height: 1.4;
+        }
+        .news-link:hover { color: var(--accent-blue); }
+        
+        .news-meta { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-size: 0.75rem; 
+            color: var(--text-secondary); 
+        }
+        .news-tag { 
+            background: rgba(59, 130, 246, 0.1); 
+            color: var(--accent-blue); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: 600;
+        }
+
         /* Cores de Variação */
         .up { color: var(--accent-green); }
         .down { color: var(--accent-red); }
 
         /* Footer */
         footer { margin-top: 40px; text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
-        a { color: #3b82f6; text-decoration: none; }
+        a { color: var(--accent-blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -99,9 +182,11 @@
     <header>
         <div>
             <h1>Gui Informa</h1>
-            <span style="color: var(--text-secondary); font-size: 0.9rem;">Visão geral do Mercado em tempo real (BRL)</span>
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">Monitoramento Financeiro em Tempo Real</span>
         </div>
-        <span class="status-badge">● Ao vivo</span>
+        <div class="status-badge">
+            <span class="status-dot"></span> Ao vivo
+        </div>
     </header>
 
     <div class="highlights">
@@ -123,22 +208,44 @@
     </div>
 
     <div class="grid-dashboard">
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <h3 style="margin:0;">Tendência Dólar (30 Dias)</h3>
+        <!-- Coluna da Esquerda (Gráfico + Notícias) -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card">
+                <div class="chart-header">
+                    <h3 style="margin:0;" id="chart-title">Tendência Dólar (30 Dias)</h3>
+                    
+                    <div class="chart-controls">
+                        <button onclick="updateChart('USD-BRL', 'Dólar')" class="chart-btn active">Dólar</button>
+                        <button onclick="updateChart('EUR-BRL', 'Euro')" class="chart-btn">Euro</button>
+                        <button onclick="updateChart('BTC-BRL', 'Bitcoin')" class="chart-btn">Bitcoin</button>
+                    </div>
+                </div>
+                
+                <div style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="marketChart"></canvas>
+                </div>
             </div>
-            <canvas id="marketChart" style="max-height: 400px;"></canvas>
+
+            <!-- NOVA SEÇÃO DE NOTÍCIAS -->
+            <div class="card">
+                <h3 style="margin-top:0; margin-bottom:15px; color: #fff; display:flex; align-items:center; gap:10px;">
+                    📰 Últimas do Mercado <span style="font-size:0.7rem; color:var(--text-secondary); font-weight:400;">(Fonte: G1 Economia)</span>
+                </h3>
+                <ul id="news-list" class="news-list">
+                    <li style="color: var(--text-secondary); text-align: center; padding: 20px;">Carregando notícias...</li>
+                </ul>
+            </div>
         </div>
 
+        <!-- Coluna da Direita (Tabelas) -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
-            
             <div class="card">
                 <h3 style="margin-top:0; margin-bottom:15px; color: #fff;">Moedas Globais</h3>
                 <table id="fiat-table">
                     <thead>
                         <tr>
                             <th>Moeda</th>
-                            <th class="col-price">Preço (R$)</th>
+                            <th class="col-price">Preço</th>
                             <th class="col-var">24h %</th>
                         </tr>
                     </thead>
@@ -152,80 +259,115 @@
                     <thead>
                         <tr>
                             <th>Ativo</th>
-                            <th class="col-price">Preço (R$)</th>
+                            <th class="col-price">Preço</th>
                             <th class="col-var">24h %</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-
         </div>
     </div>
 
     <footer>
-        Dados fornecidos por <a href="https://docs.awesomeapi.com.br" target="_blank">AwesomeAPI</a>. Atualização automática.
+        Dados fornecidos por <a href="https://docs.awesomeapi.com.br" target="_blank">AwesomeAPI</a> e G1.
     </footer>
 </div>
 
 <script>
-    // Configurações Globais
+    // --- Configurações ---
     const API_URL_LAST = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,GBP-BRL,CAD-BRL,JPY-BRL,BTC-BRL,ETH-BRL,LTC-BRL';
+    // URL do RSS do G1 Economia convertido para JSON
+    const NEWS_API_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://g1.globo.com/dynamo/economia/rss2.xml';
     
-    // Lista para organizar as tabelas
     const fiatList = ['USDBRL', 'EURBRL', 'GBPBRL', 'CADBRL', 'JPYBRL'];
     const cryptoList = ['BTCBRL', 'ETHBRL', 'LTCBRL'];
+    let myChart = null;
 
-    // Formatação de Dinheiro
+    // --- Formatadores ---
     const formatCurrency = (value) => {
         return parseFloat(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    // Elemento HTML de variação
     const getVariationElement = (pct) => {
         const val = parseFloat(pct);
         const icon = val >= 0 ? '▲' : '▼';
         const colorClass = val >= 0 ? 'up' : 'down';
-        return `<span class="${colorClass}">${icon} ${val.toFixed(2)}%</span>`;
+        return `<span class="${colorClass}" style="font-weight:500;">${icon} ${val.toFixed(2)}%</span>`;
     };
 
-    // 1. Buscar Dados e Preencher Tabelas
+    // --- Lógica Principal ---
+
+    // 1. Buscar Notícias (NOVO)
+    async function fetchNews() {
+        try {
+            const response = await fetch(NEWS_API_URL);
+            const data = await response.json();
+            
+            const newsList = document.getElementById('news-list');
+            
+            if(data.status === 'ok') {
+                newsList.innerHTML = ''; // Limpa o "Carregando..."
+                
+                // Pega as 4 primeiras notícias
+                data.items.slice(0, 4).forEach(item => {
+                    // Formatar data (ex: 2024-05-20 10:00:00 -> 20/05 às 10:00)
+                    const dateObj = new Date(item.pubDate);
+                    const dateStr = dateObj.toLocaleDateString('pt-BR', {day: '2-digit', month:'2-digit'}) + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+                    const li = document.createElement('li');
+                    li.className = 'news-item';
+                    li.innerHTML = `
+                        <a href="${item.link}" target="_blank" class="news-link">${item.title}</a>
+                        <div class="news-meta">
+                            <span class="news-tag">Mercado</span>
+                            <span>${dateStr}</span>
+                        </div>
+                    `;
+                    newsList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar notícias:", error);
+            document.getElementById('news-list').innerHTML = '<li style="padding:15px; text-align:center; color:var(--text-secondary)">Não foi possível carregar as notícias no momento.</li>';
+        }
+    }
+
+    // 2. Atualizar Preços
     async function fetchData() {
         try {
             const response = await fetch(API_URL_LAST);
             const data = await response.json();
 
-            // Atualizar Cards de Destaque
-            document.getElementById('main-usd').innerText = formatCurrency(data.USDBRL.bid);
-            document.getElementById('var-usd').innerHTML = getVariationElement(data.USDBRL.pctChange);
-            
-            document.getElementById('main-btc').innerText = formatCurrency(data.BTCBRL.bid);
-            document.getElementById('var-btc').innerHTML = getVariationElement(data.BTCBRL.pctChange);
+            updateHighlight('main-usd', 'var-usd', data.USDBRL);
+            updateHighlight('main-btc', 'var-btc', data.BTCBRL);
+            updateHighlight('main-eur', 'var-eur', data.EURBRL);
 
-            document.getElementById('main-eur').innerText = formatCurrency(data.EURBRL.bid);
-            document.getElementById('var-eur').innerHTML = getVariationElement(data.EURBRL.pctChange);
-
-            // Preencher Tabela Fiat
             fillTable('fiat-table', fiatList, data);
-            // Preencher Tabela Cripto
             fillTable('crypto-table', cryptoList, data);
 
         } catch (error) {
-            console.error("Erro ao buscar dados:", error);
+            console.error("Erro na API:", error);
         }
+    }
+
+    function updateHighlight(idVal, idVar, item) {
+        document.getElementById(idVal).innerText = formatCurrency(item.bid);
+        document.getElementById(idVar).innerHTML = getVariationElement(item.pctChange);
     }
 
     function fillTable(tableId, keys, data) {
         const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ''; // Limpa tabela
+        tbody.innerHTML = ''; 
 
         keys.forEach(key => {
             const item = data[key];
             if(!item) return;
 
-            // Tratamento do nome (remove o /Real Brasileiro para ficar curto)
-            let name = item.name.split('/')[0]; 
-            
+            let name = item.name.split('/')[0];
+            if(name === 'Libra Esterlina') name = 'Libra';
+            if(name === 'Dólar Canadense') name = 'Dólar CAD';
+
             const row = `
                 <tr>
                     <td>${name}</td>
@@ -237,65 +379,78 @@
         });
     }
 
-    // 2. Gráfico com Gradiente (Chart.js)
-    async function initChart() {
+    // 3. Gráfico Dinâmico
+    async function updateChart(pair, label) {
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.innerText === label) btn.classList.add('active');
+        });
+
+        document.getElementById('chart-title').innerText = `Tendência ${label} (30 Dias)`;
         const ctx = document.getElementById('marketChart').getContext('2d');
 
-        // Criar gradiente bonito
-        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // Azul forte no topo
-        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)'); // Transparente embaixo
+        try {
+            const response = await fetch(`https://economia.awesomeapi.com.br/json/daily/${pair}/30`);
+            const rawData = await response.json();
+            
+            const labels = rawData.map(i => new Date(i.timestamp * 1000).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})).reverse();
+            const values = rawData.map(i => i.bid).reverse();
 
-        // Pegar histórico de 30 dias do Dólar
-        const response = await fetch('https://economia.awesomeapi.com.br/json/daily/USD-BRL/30');
-        const rawData = await response.json();
-        
-        const labels = rawData.map(i => new Date(i.timestamp * 1000).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})).reverse();
-        const values = rawData.map(i => i.bid).reverse();
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Dólar (BRL)',
-                    data: values,
-                    borderColor: '#3b82f6', // Azul brilhante
-                    borderWidth: 2,
-                    backgroundColor: gradient,
-                    fill: true,
-                    tension: 0.4, // Curva suave
-                    pointRadius: 0, // Remove bolinhas para visual limpo
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                interaction: { intersect: false, mode: 'index' },
-                scales: {
-                    x: { grid: { display: false, color: '#334155' }, ticks: { color: '#94a3b8' } },
-                    y: { grid: { color: '#334155', borderDash: [5, 5] }, ticks: { color: '#94a3b8' } }
+            if (myChart) { myChart.destroy(); }
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Preço (${label})`,
+                        data: values,
+                        borderColor: '#3b82f6',
+                        borderWidth: 2,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#3b82f6'
+                    }]
                 },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1e293b',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        borderColor: '#334155',
-                        borderWidth: 1,
-                        displayColors: false
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    scales: {
+                        x: { grid: { display: false, color: '#334155' }, ticks: { color: '#94a3b8', font: {size: 11} } },
+                        y: { grid: { color: '#334155', borderDash: [5, 5] }, ticks: { color: '#94a3b8', font: {size: 11} } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) { return Number(context.parsed.y).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}); }
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
+        } catch (err) { console.error("Erro gráfico", err); }
     }
 
-    // Inicializar
+    // Inicialização
     fetchData();
-    initChart();
-    
-    // Atualizar preços a cada 30 segundos
+    fetchNews(); // Chama as notícias
+    updateChart('USD-BRL', 'Dólar');
     setInterval(fetchData, 30000);
 
 </script>
